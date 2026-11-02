@@ -15,7 +15,9 @@
             android:name=".MainActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize">
-            <!-- ya no será la Activity principal, sino el LoginActivity
+
+            <!--
+            ya no será la Activity principal, sino el LoginActivity
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -32,9 +34,14 @@
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".view.ResourceListActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
     </application>
 
 </manifest>
