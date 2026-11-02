@@ -1,6 +1,5 @@
 package udb.dsm.recursodidacticos.view
 
-import android.R
 import android.os.Bundle
 import android.widget.ArrayAdapter
 import android.widget.Toast
@@ -37,7 +36,7 @@ class RegisterActivity : AppCompatActivity() {
 
         //un spinner para eligir el rol de usuario [Estudiante / Docente]
         val roles = arrayOf("Estudiante", "Docente")
-        val adapter = ArrayAdapter(this, R.layout.simple_spinner_dropdown_item, roles)
+        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, roles)
         binding.spinnerRol.adapter = adapter
 
         binding.btnRegister.setOnClickListener {
