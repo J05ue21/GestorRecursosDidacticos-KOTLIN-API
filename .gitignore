@@ -2,7 +2,7 @@
 .gradle
 /local.properties
 # Configuración de Android Studio / IntelliJ
-.idea/gradle.xml
+/.idea/gradle.xml
 /.idea/caches
 /.idea/libraries
 /.idea/modules.xml
