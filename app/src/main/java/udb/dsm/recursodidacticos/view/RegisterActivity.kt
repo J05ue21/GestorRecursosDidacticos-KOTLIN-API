@@ -1,6 +1,8 @@
 package udb.dsm.recursodidacticos.view
 
+import android.R
 import android.os.Bundle
+import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
@@ -33,14 +35,19 @@ class RegisterActivity : AppCompatActivity() {
         setContentView(binding.root)
         firebaseAuth = FirebaseAuth.getInstance()
 
+        //un spinner para eligir el rol de usuario [Estudiante / Docente]
+        val roles = arrayOf("Estudiante", "Docente")
+        val adapter = ArrayAdapter(this, R.layout.simple_spinner_dropdown_item, roles)
+        binding.spinnerRol.adapter = adapter
+
         binding.btnRegister.setOnClickListener {
             val nombre = binding.etName.text.toString().trim()
             val email = binding.etEmail.text.toString().trim()
             val password = binding.etPassword.text.toString().trim()
             val confirmPassword = binding.etConfirmPassword.text.toString().trim()
 
-            // por defecto, dejar el rol estudiante
-            val rol = "Estudiante"
+            // capturando el rol seleccionado
+            val rol = binding.spinnerRol.selectedItem.toString()
 
             // validar campos vacíos
             if (nombre.isEmpty() || email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
