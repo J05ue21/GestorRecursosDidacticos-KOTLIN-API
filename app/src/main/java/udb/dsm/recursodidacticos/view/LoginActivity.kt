@@ -77,9 +77,14 @@ class LoginActivity : AppCompatActivity() {
                         val rol = usuarioEncontrado.rol
                         Toast.makeText(this@LoginActivity, "Bienvenido (${rol})", Toast.LENGTH_SHORT).show()
 
-                        // TODO: redireccionamiento al RecyclerView principal pasando el rol y:
                         // Si es "Docente" le habilitamos el CRUD o
                         // si es "Estudiante" solo ver, sus favoritos y calificaciones
+
+                        // nos vamos a la pantalla principal pasando el rol del usuario
+                        val intent = Intent(this@LoginActivity, ResourceListActivity::class.java)
+                        intent.putExtra("ROL_USUARIO", rol)
+                        startActivity(intent)
+                        finish() // sin marcha atrás; el Login se cierra para que al presionar "atrás" no regrese
 
                     }
                     else {
