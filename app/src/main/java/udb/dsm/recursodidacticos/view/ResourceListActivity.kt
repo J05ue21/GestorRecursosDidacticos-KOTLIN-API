@@ -59,8 +59,7 @@ class ResourceListActivity : AppCompatActivity(), ResourceAdapter.OnItemClickLis
             // el docente tiene acceso al botón de crear recurso
             binding.fabAgregarRecurso.visibility = View.VISIBLE
             binding.fabAgregarRecurso.setOnClickListener {
-
-                Toast.makeText(this, "Acción de Docente: Crear Recurso", Toast.LENGTH_SHORT).show()
+                mostrarDialogoFormularioRecurso(null) // null indica que es un nuevo registro
             }
         }
     }
@@ -120,10 +119,124 @@ class ResourceListActivity : AppCompatActivity(), ResourceAdapter.OnItemClickLis
     override fun onItemClick(recurso: Recurso) {
         if (rolUsuario.equals("Docente", ignoreCase = true)) {
             // si es docente, se muestra Editar o Eliminar
-            Toast.makeText(this, "Docente: Editar/Eliminar ${recurso.titulo}", Toast.LENGTH_SHORT).show()
+            val opciones = arrayOf("Editar Recurso", "Eliminar Recurso")
+            androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("Gestión de Recurso: ${recurso.titulo}")
+                .setItems(opciones) { _, which ->
+                    when (which) {
+                        0 -> mostrarDialogoFormularioRecurso(recurso) // para ditar
+                        1 -> confirmarEliminacion(recurso) // pa eliminar
+                    }
+                }
+                .show()
         } else {
             // Si entra como estudiante, solamente puede ver el detalle, calificar o agregar a favoritos
             Toast.makeText(this, "Estudiante: Ver detalle o calificar ${recurso.titulo}", Toast.LENGTH_SHORT).show()
         }
+    }
+
+    fun mostrarDialogoFormularioRecurso(recurso: Recurso?) {
+        val builder = androidx.appcompat.app.AlertDialog.Builder(this)
+        val inflater = layoutInflater
+        val vista = inflater.inflate(R.layout.dialog_recurso_form, null) // O creas los campos por código si prefieres
+
+        // Referencias de los inputs del diálogo (asumiendo que creas un layout simple para el form)
+        val etTitulo = vista.findViewById<android.widget.EditText>(R.id.etDialogTitulo)
+        val etTipo = vista.findViewById<android.widget.EditText>(R.id.etDialogTipo)
+        val etDescripcion = vista.findViewById<android.widget.EditText>(R.id.etDialogDescripcion)
+        val etImagen = vista.findViewById<android.widget.EditText>(R.id.etDialogImagen)
+
+        // Si estamos editando, rellenamos los campos con los datos actuales
+        if (recursoAEditar != null) {
+            etTitulo.setText(recursoAEditar.titulo)
+            etTipo.setText(recursoAEditar.tipo)
+            etDescripcion.setText(recursoAEditar.descripcion)
+            etImagen.setText(recursoAEditar.imagen)
+        }
+
+        builder.setView(vista)
+            .setTitle(if (recursoAEditar == null) "Crear Nuevo Recurso" else "Editar Recurso")
+            .setPositiveButton("Guardar") { _, _ ->
+                val titulo = etTitulo.text.toString().trim()
+                val tipo = etTipo.text.toString().trim()
+                val descripcion = etDescripcion.text.toString().trim()
+                val imagen = etImagen.text.toString().trim()
+
+                if (titulo.isEmpty() || tipo.isEmpty()) {
+                    Toast.makeText(this, "Es necesario el Título y el tipo de recurso", Toast.LENGTH_SHORT).show()
+                    return@setPositiveButton
+                }
+
+                if (recursoAEditar == null) {
+                    // Operación CREATE (POST)
+                    val nuevoRecurso = Recurso(id = "", titulo = titulo, tipo = tipo, descripcion = descripcion, imagen = imagen, rating = 0.0)
+                    ejecutarCrearRecurso(nuevoRecurso)
+                } else {
+                    // Operación UPDATE (PUT)
+                    val recursoActualizado = Recurso(id = recursoAEditar.id, titulo = titulo, tipo = tipo, descripcion = descripcion, imagen = imagen, rating = recursoAEditar.rating)
+                    ejecutarActualizarRecurso(recursoAEditar.id, recursoActualizado)
+                }
+            }
+            .setNegativeButton("Cancelar", null)
+            .show()
+    }
+
+    private fun ejecutarCrearRecurso(recurso: Recurso) {
+        apiService.crearRecurso(recurso).enqueue(object : retrofit2.Callback<Recurso> {
+            override fun onResponse(call: retrofit2.Call<Recurso>, response: retrofit2.Response<Recurso>) {
+                if (response.isSuccessful) {
+                    Toast.makeText(this@ResourceListActivity, "Recurso fue creado exitosamente!!", Toast.LENGTH_SHORT).show()
+                    obtenerRecursosDesdeApi() // Recargar lista
+                } else {
+                    Toast.makeText(this@ResourceListActivity, "Hubi un error al crear recurso", Toast.LENGTH_SHORT).show()
+                }
+            }
+            override fun onFailure(call: retrofit2.Call<Recurso>, t: Throwable) {
+                Toast.makeText(this@ResourceListActivity, "Error de conexion: ${t.message}", Toast.LENGTH_SHORT).show()
+            }
+        })
+    }
+
+    private fun ejecutarActualizarRecurso(id: String, recurso: Recurso) {
+        apiService.actualizarRecurso(id, recurso).enqueue(object : retrofit2.Callback<Recurso> {
+            override fun onResponse(call: retrofit2.Call<Recurso>, response: retrofit2.Response<Recurso>) {
+                if (response.isSuccessful) {
+                    Toast.makeText(this@ResourceListActivity, "Se actualizo el recurso", Toast.LENGTH_SHORT).show()
+                    obtenerRecursosDesdeApi()
+                } else {
+                    Toast.makeText(this@ResourceListActivity, "Hubo un error al actualizar", Toast.LENGTH_SHORT).show()
+                }
+            }
+            override fun onFailure(call: retrofit2.Call<Recurso>, t: Throwable) {
+                Toast.makeText(this@ResourceListActivity, "Error de conexion: ${t.message}", Toast.LENGTH_SHORT).show()
+            }
+        })
+    }
+
+    private fun confirmarEliminacion(recurso: Recurso) {
+        androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle("Eliminar Recurso")
+            .setMessage("¿Estás seguro de eliminar '${recurso.titulo}'?")
+            .setPositiveButton("Eliminar") { _, _ ->
+                ejecutarEliminarRecurso(recurso.id)
+            }
+            .setNegativeButton("Cancelar", null)
+            .show()
+    }
+
+    private fun ejecutarEliminarRecurso(id: String) {
+        apiService.eliminarRecurso(id).enqueue(object : retrofit2.Callback<Void> {
+            override fun onResponse(call: retrofit2.Call<Void>, response: retrofit2.Response<Void>) {
+                if (response.isSuccessful) {
+                    Toast.makeText(this@ResourceListActivity, "El recurso ha sido eliminado", Toast.LENGTH_SHORT).show()
+                    obtenerRecursosDesdeApi()
+                } else {
+                    Toast.makeText(this@ResourceListActivity, "Hubo un error al eliminar", Toast.LENGTH_SHORT).show()
+                }
+            }
+            override fun onFailure(call: retrofit2.Call<Void>, t: Throwable) {
+                Toast.makeText(this@ResourceListActivity, "Error en la conexion: ${t.message}", Toast.LENGTH_SHORT).show()
+            }
+        })
     }
 }
