@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <EditText
+        android:id="@+id/etDialogTitulo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Título del recurso"
+        android:inputType="text"
+        android:layout_marginBottom="12dp"/>
+
+    <EditText
+        android:id="@+id/etDialogTipo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Tipo (Ej: Video, PDF, Guía)"
+        android:inputType="text"
+        android:layout_marginBottom="12dp"/>
+
+    <EditText
+        android:id="@+id/etDialogDescripcion"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Descripción detallada"
+        android:inputType="textLongMessage"
+        android:layout_marginBottom="12dp"/>
+
+    <EditText
+        android:id="@+id/etDialogEnlace"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enlace / URL del recurso"
+        android:inputType="textUri"
+        android:layout_marginBottom="12dp"/>
+
+    <EditText
+        android:id="@+id/etDialogImagen"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="URL de la imagen"
+        android:inputType="textUri"/>
+
+</LinearLayout>
