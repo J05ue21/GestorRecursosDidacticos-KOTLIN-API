@@ -2,6 +2,7 @@ package udb.dsm.recursodidacticos.view
 
 import android.os.Bundle
 import android.view.View
+import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
@@ -11,6 +12,7 @@ import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import udb.dsm.recursodidacticos.R
 import udb.dsm.recursodidacticos.databinding.ActivityResourceListBinding
 import udb.dsm.recursodidacticos.model.Recurso
 import udb.dsm.recursodidacticos.network.ApiService
@@ -135,15 +137,16 @@ class ResourceListActivity : AppCompatActivity(), ResourceAdapter.OnItemClickLis
         }
     }
 
-    fun mostrarDialogoFormularioRecurso(recurso: Recurso?) {
+    fun mostrarDialogoFormularioRecurso(recursoAEditar: Recurso?) {
         val builder = androidx.appcompat.app.AlertDialog.Builder(this)
         val inflater = layoutInflater
         val vista = inflater.inflate(R.layout.dialog_recurso_form, null) // O creas los campos por código si prefieres
 
-        // Referencias de los inputs del diálogo (asumiendo que creas un layout simple para el form)
+        // Referencias a los campos del diálogo
         val etTitulo = vista.findViewById<android.widget.EditText>(R.id.etDialogTitulo)
         val etTipo = vista.findViewById<android.widget.EditText>(R.id.etDialogTipo)
         val etDescripcion = vista.findViewById<android.widget.EditText>(R.id.etDialogDescripcion)
+        val etEnlace = vista.findViewById<EditText>(R.id.etDialogEnlace)
         val etImagen = vista.findViewById<android.widget.EditText>(R.id.etDialogImagen)
 
         // Si estamos editando, rellenamos los campos con los datos actuales
@@ -151,6 +154,7 @@ class ResourceListActivity : AppCompatActivity(), ResourceAdapter.OnItemClickLis
             etTitulo.setText(recursoAEditar.titulo)
             etTipo.setText(recursoAEditar.tipo)
             etDescripcion.setText(recursoAEditar.descripcion)
+            etEnlace.setText(recursoAEditar.enlace)
             etImagen.setText(recursoAEditar.imagen)
         }
 
@@ -160,6 +164,7 @@ class ResourceListActivity : AppCompatActivity(), ResourceAdapter.OnItemClickLis
                 val titulo = etTitulo.text.toString().trim()
                 val tipo = etTipo.text.toString().trim()
                 val descripcion = etDescripcion.text.toString().trim()
+                val enlace = etEnlace.text.toString().trim()
                 val imagen = etImagen.text.toString().trim()
 
                 if (titulo.isEmpty() || tipo.isEmpty()) {
@@ -168,12 +173,28 @@ class ResourceListActivity : AppCompatActivity(), ResourceAdapter.OnItemClickLis
                 }
 
                 if (recursoAEditar == null) {
-                    // Operación CREATE (POST)
-                    val nuevoRecurso = Recurso(id = "", titulo = titulo, tipo = tipo, descripcion = descripcion, imagen = imagen, rating = 0.0)
+                    // crear
+                    val nuevoRecurso = Recurso(
+                        id = "",
+                        titulo = titulo,
+                        tipo = tipo,
+                        descripcion = descripcion,
+                        enlace = enlace,
+                        imagen = imagen,
+                        rating = 0.0
+                    )
                     ejecutarCrearRecurso(nuevoRecurso)
                 } else {
-                    // Operación UPDATE (PUT)
-                    val recursoActualizado = Recurso(id = recursoAEditar.id, titulo = titulo, tipo = tipo, descripcion = descripcion, imagen = imagen, rating = recursoAEditar.rating)
+                    // actualizar
+                    val recursoActualizado = Recurso(
+                        id = recursoAEditar.id,
+                        titulo = titulo,
+                        tipo = tipo,
+                        descripcion = descripcion,
+                        enlace = enlace,
+                        imagen = imagen,
+                        rating = recursoAEditar.rating
+                    )
                     ejecutarActualizarRecurso(recursoAEditar.id, recursoActualizado)
                 }
             }
